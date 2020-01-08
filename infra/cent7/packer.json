@@ -1,0 +1,74 @@
+{
+  "variables": {
+    "file": "http://repos.dfw.quadranet.com/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1908.iso",
+    "checksum": "9a2c47d97b9975452f7d582264e9fc16d108ed8252ac6816239a3b58cef5c53d",
+    "checksum_type": "sha256",
+    "non_gui": "true"
+  },
+  "builders": [
+    {
+      "type": "virtualbox-iso",
+      "iso_url": "{{ user `file` }}",
+      "iso_checksum": "{{ user `checksum` }}",
+      "iso_checksum_type": "{{ user `checksum_type` }}",
+      "headless": "{{ user `non_gui` }}",
+      "output_directory": "builds",
+      "vm_name": "CentOS7_to_Vagrant",
+      "guest_os_type": "centos-64",
+      "disk_size": "10240",
+      "vboxmanage": [
+        ["modifyvm", "{{.Name}}", "--memory", "2048"],
+        ["modifyvm", "{{.Name}}", "--cpus", "2"],
+        ["modifyvm", "{{.Name}}", "--audio", "none"],
+        ["modifyvm", "{{.Name}}", "--usb", "off"]
+      ],
+      "http_directory": "src",
+      "boot_wait": "5s",
+      "boot_command": [
+        "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
+      ],
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "600s",
+      "shutdown_command": "sudo shutdown -h 0"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "src/packages.sh"
+    },
+    {
+      "type": "shell",
+      "expect_disconnect": true,
+      "inline": [
+        "sudo /sbin/shutdown -r now"
+      ]
+    },
+    {
+      "type": "shell",
+      "pause_before": "10s",
+      "script": "../common/guest_additions.sh"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo rm -rf /tmp/*",
+        "sudo rm -f /var/log/wtmp /var/log/btmp ",
+        "sudo yum clean all",
+        "sudo rm -rf /var/cache/* /usr/share/doc/*",
+        "rm -f .bash_history",
+        "history -c"
+      ]
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "keep_input_artifact": false,
+      "compression_level": 9,
+      "output": "target/CentOS-7.box"
+    }
+  ]
+}
