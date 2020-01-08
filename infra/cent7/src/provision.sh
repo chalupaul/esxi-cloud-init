@@ -23,15 +23,19 @@ pyenv activate esxicloudinit
 pip install -r src/cloud-init/requirements.txt
 
 cd ${HOME}/src
+rm -rf cloud-init
 git clone https://github.com/cloud-init/cloud-init.git
 
 cd ${HOME}/src/cloud-init
+pip install -r requirements.txt
 python setup.py clean
 python setup.py build
-python setup.py install --root ${HOME}/dist/cloud-init/payloads/cloud-init --install-scripts usr/bin --install-lib usr/lib/python3.5/site-packages
-cp /home/vagrant/src/descriptor.xml ${HOME}/dist/cloud-init
+DISTDIR=${HOME}/src/dist
+mkdir -p ${DISTDIR}
+python setup.py install --root ${DISTDIR}/cloud-init/payloads/cloud-init --install-scripts usr/bin --install-lib usr/lib/python3.5/site-packages --init-system sysvinit
+cp /home/vagrant/src/descriptor.xml ${DISTDIR}/cloud-init
 
-cd ${HOME}/dist
+cd ${DISTDIR}
 pyenv install 2.6.9
 export PYENV_VERSION=2.6.9
 pyenv versions

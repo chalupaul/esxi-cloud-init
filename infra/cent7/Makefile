@@ -25,7 +25,7 @@ spinup:
 spindown:
 	cd $(CURRENT_DIR)/target && vagrant halt
 
-dist: build spinup spindown
+vib: build spinup spindown
 
 reload:
 	cp $(CURRENT_DIR)/src/Vagrantfile.tpl $(CURRENT_DIR)/target/Vagrantfile
