@@ -19,6 +19,7 @@ validate:
 	packer validate $(CURRENT_DIR)/packer.json
 
 spinup:
+	cp $(CURRENT_DIR)/target/CentOS-7.box $(CURRENT_DIR)/target/vagrant-centos7.box
 	vagrant box add packer/centos7 $(CURRENT_DIR)/target/CentOS-7.box --force
 	cd $(CURRENT_DIR)/target && vagrant up
 
